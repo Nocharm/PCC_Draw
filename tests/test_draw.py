@@ -3,7 +3,7 @@ import matplotlib
 
 matplotlib.use("Agg")  # GUI 없이 렌더 (pyplot import 전 설정)
 
-from pcc_draw.draw import PHASE_COLORS, build_figure, draw_gantt, draw_process
+from pcc_draw.draw import PHASE_COLORS, build_figure, draw_gantt, draw_process, render
 from pcc_draw.schedule import ColumnState, Phase, PhaseDurations, Schedule
 
 
@@ -38,3 +38,11 @@ def test_draw_gantt_draws_now_line_and_phase_bands():
     # phase 띠 패치가 다수 + now 세로선 1개 이상
     assert len(ax_gantt.patches) > 4
     assert len(ax_gantt.lines) >= 1
+
+
+def test_render_populates_both_axes():
+    fig, ax_process, ax_gantt = build_figure()
+    s = Schedule(PhaseDurations())
+    render(fig, ax_process, ax_gantt, s, t=200.0, titer=1.52)
+    assert len(ax_process.patches) >= 5   # 컬럼 + VI
+    assert len(ax_gantt.lines) >= 1        # now 선

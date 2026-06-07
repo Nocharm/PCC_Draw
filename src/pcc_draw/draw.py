@@ -90,3 +90,12 @@ def draw_gantt(ax: plt.Axes, schedule: Schedule, t: float,
             acc += dur
 
     ax.axvline(t, color="green", lw=2)  # now 세로선
+
+
+def render(fig: Figure, ax_process: plt.Axes, ax_gantt: plt.Axes,
+           schedule: Schedule, t: float, titer: float) -> None:
+    """한 프레임: 모델 상태 조회 → 두 패널 렌더."""
+    states = schedule.state_at(t)
+    draw_process(ax_process, states, titer)
+    draw_gantt(ax_gantt, schedule, t)
+    fig.tight_layout()
