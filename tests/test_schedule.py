@@ -1,4 +1,6 @@
 """순수 스케줄 모델 단위 테스트."""
+import pytest
+
 from pcc_draw.schedule import Phase, PhaseDurations, Schedule
 
 
@@ -54,19 +56,20 @@ def test_active_cycles_excludes_cycle_ending_exactly_at_t():
     # t=200, total=120 → start=80 사이클은 offset=120=total → 제외(반열림)
     s = _sched()
     indices = [i for i, _ in s.active_cycles(200.0)]
-    assert 80 / 30 not in indices  # 정수 아님이지만 의미상: start=80인 사이클 없음
+    assert 2 not in indices  # cycle 2(start=60)는 t=200에 offset=140>=total → 비활성
     # start=90,120,150,180 → 인덱스 3,4,5,6
     assert indices == [3, 4, 5, 6]
 
 
 def test_active_cycles_raises_on_nonpositive_load():
     s = Schedule(PhaseDurations(load=0.0))
-    try:
+    with pytest.raises(ValueError, match="load duration must be positive"):
         s.active_cycles(10.0)
-        raised = False
-    except ValueError:
-        raised = True
-    assert raised
+
+
+def test_active_cycles_ramp_up_at_t_zero():
+    # 시작 시점: 사이클 0만 활성, LOAD 단계
+    assert _sched().active_cycles(0.0) == [(0, Phase.LOAD)]
 
 
 def test_state_at_returns_one_entry_per_column():

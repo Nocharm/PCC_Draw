@@ -14,7 +14,7 @@ class Phase(Enum):
 
 @dataclass(frozen=True)
 class PhaseDurations:
-    """각 단계 고정 길이[분]. load만 가변 의미를 갖지만 여기선 모두 상수."""
+    """각 단계 고정 길이[분]."""
 
     load: float = 30.0
     wash: float = 20.0
@@ -45,7 +45,7 @@ class ColumnState:
 
 @dataclass(frozen=True)
 class Schedule:
-    """겹치는 PCC 사이클 타임라인. 위상 간격 = load_duration."""
+    """겹치는 PCC 사이클 타임라인. 위상 간격 = durations.load."""
 
     durations: PhaseDurations
     num_columns: int = 4
@@ -72,6 +72,7 @@ class Schedule:
         if load <= 0:
             raise ValueError(f"load duration must be positive, got {load}")
         total = self.durations.total
+        # 후보 하한: start >= t - total 인 사이클만 활성 가능 (phase_at가 실제 필터)
         lo = max(0, int((t - total) // load))
         hi = int(t // load)
         result: list[tuple[int, Phase]] = []
