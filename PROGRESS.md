@@ -19,3 +19,10 @@
   README 플레이스홀더를 실제 프로젝트 설명으로 교체.
 - **왜**: Python 전용 matplotlib 프로젝트라 백엔드/TS 룰이 불필요하고, 공개 리포에 템플릿 잔재·플레이스홀더를
   남기지 않기 위함 (문서화·setup-from-template 룰).
+
+## 구현 계획 작성 (writing-plans)
+
+- **무엇**: 12개 태스크의 TDD 구현 계획 작성 (`docs/superpowers/plans/2026-06-08-pcc-draw-animation.md`).
+  schedule(모델, TDD) → draw(렌더, Agg 스모크) → animate(드라이버) → CLI → 검증/GIF/README.
+- **왜**: 승인된 설계를 바이트사이즈 태스크로 분해해 task-by-task 구현·검증하기 위함.
+- **다음**: 구현 실행 (subagent-driven 또는 inline).
