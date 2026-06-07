@@ -3,7 +3,8 @@ import matplotlib
 
 matplotlib.use("Agg")
 
-from pcc_draw.animate import advance
+from pcc_draw.__main__ import parse_args  # noqa: E402
+from pcc_draw.animate import advance  # noqa: E402
 
 
 def test_advance_moves_time_by_dt_when_running():
@@ -12,9 +13,6 @@ def test_advance_moves_time_by_dt_when_running():
 
 def test_advance_holds_time_when_paused():
     assert advance(100.0, 2.0, paused=True) == 100.0
-
-
-from pcc_draw.__main__ import parse_args
 
 
 def test_parse_args_defaults():
