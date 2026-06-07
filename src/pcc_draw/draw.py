@@ -3,8 +3,9 @@ from __future__ import annotations
 
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
+from matplotlib.patches import Rectangle
 
-from pcc_draw.schedule import Phase
+from pcc_draw.schedule import ColumnState, Phase
 
 PHASE_COLORS: dict[Phase, str] = {
     Phase.LOAD: "#4C9F70",   # green
@@ -22,3 +23,42 @@ def build_figure() -> tuple[Figure, plt.Axes, plt.Axes]:
         2, 1, figsize=(10, 6), gridspec_kw={"height_ratios": [3, 2]}
     )
     return fig, ax_process, ax_gantt
+
+
+def draw_process(ax: plt.Axes, states: list[ColumnState], titer: float) -> None:
+    """상단 패널: 컬럼 박스(단계 색) + VI + Titer + elute→VI 화살표."""
+    ax.clear()
+    ax.set_xlim(0, 10)
+    ax.set_ylim(0, 4)
+    ax.axis("off")
+    ax.set_title("PCC — Pro A columns", loc="left")
+
+    box_w, box_h, gap, y0 = 1.4, 2.0, 0.4, 1.0
+    for st in states:
+        x0 = 0.5 + st.column * (box_w + gap)
+        color = PHASE_COLORS[st.phase] if st.phase else IDLE_COLOR
+        ax.add_patch(Rectangle((x0, y0), box_w, box_h,
+                               facecolor=color, edgecolor="black", lw=1.5))
+        label = (COLUMN_LABELS[st.column] if st.column < len(COLUMN_LABELS)
+                 else f"#{st.column + 1:02d}")
+        ax.text(x0 + box_w / 2, y0 + box_h - 0.3, label,
+                ha="center", va="top", fontweight="bold")
+        ax.text(x0 + box_w / 2, y0 + 0.3, st.phase.value if st.phase else "idle",
+                ha="center", va="bottom")
+
+    vi_x = 0.5 + len(states) * (box_w + gap) + 0.3
+    eluting = [st for st in states if st.phase is Phase.ELUTE]
+    vi_color = PHASE_COLORS[Phase.ELUTE] if eluting else IDLE_COLOR
+    ax.add_patch(Rectangle((vi_x, y0 + 0.5), 1.0, 1.0,
+                           facecolor=vi_color, edgecolor="black", lw=1.5))
+    ax.text(vi_x + 0.5, y0 + 1.0, "VI", ha="center", va="center", fontweight="bold")
+
+    if eluting:
+        src = eluting[0]
+        sx = 0.5 + src.column * (box_w + gap) + box_w
+        ax.annotate("", xy=(vi_x, y0 + 1.0), xytext=(sx, y0 + 1.0),
+                    arrowprops=dict(arrowstyle="->", lw=2,
+                                    color=PHASE_COLORS[Phase.ELUTE]))
+
+    ax.text(9.8, 3.7, f"Titer: {titer:.2f}", ha="right", va="top", fontsize=11,
+            bbox=dict(boxstyle="round", fc="white", ec="gray"))
