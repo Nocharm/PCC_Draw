@@ -17,7 +17,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument("--elute", type=float, default=40.0, help="ELUTE 길이 [분]")
     p.add_argument("--regen", type=float, default=30.0, help="REGEN 길이 [분]")
     p.add_argument("--columns", type=int, default=4, help="컬럼 수")
-    p.add_argument("--save", type=str, default=None,
+    p.add_argument("--save", default=None,
                    help="GIF 저장 경로 (생략 시 실시간 창)")
     return p.parse_args(argv)
 
