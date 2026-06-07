@@ -1,6 +1,7 @@
 """순수 PCC 스케줄 모델 — matplotlib 무관, 결정적 함수. 시간 단위는 분(float)."""
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 from enum import Enum
 
@@ -49,6 +50,11 @@ class Schedule:
 
     durations: PhaseDurations
     num_columns: int = 4
+
+    @property
+    def required_columns(self) -> int:
+        """겹침을 모두 수용할 최소 컬럼 수 = ceil(total / load). (load > 0 가정)"""
+        return math.ceil(self.durations.total / self.durations.load)
 
     def cycle_start(self, cycle_index: int) -> float:
         """사이클 i의 load 시작 시각 = i * load_duration."""

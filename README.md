@@ -34,7 +34,7 @@ uv run python -m pcc_draw --titer 2.0 --load 25  # 파라미터 조정
 src/pcc_draw/
 ├── schedule.py   # 순수 모델: Phase, 고정 길이, 사이클 타임라인, state_at(t)
 ├── draw.py       # 한 프레임 렌더: 모델 상태 → matplotlib 도형
-├── animate.py    # FuncAnimation 드라이버: 재생/일시정지/속도, --save GIF/MP4
+├── animate.py    # FuncAnimation 드라이버: 재생/일시정지/속도, --save GIF
 └── __main__.py   # python -m pcc_draw 진입점
 tests/            # schedule.py 단위 테스트
 ```

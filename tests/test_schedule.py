@@ -96,3 +96,8 @@ def test_eluting_columns_match_elute_phase():
     expected = [st for st in states if st.cycle is not None
                 and s.phase_at(st.cycle, t) is Phase.ELUTE]
     assert eluting == expected
+
+
+def test_required_columns_matches_concurrency():
+    # total=120, load=30 → ceil(4.0) = 4
+    assert _sched().required_columns == 4

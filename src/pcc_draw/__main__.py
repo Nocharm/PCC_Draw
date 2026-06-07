@@ -28,6 +28,11 @@ def main(argv: list[str] | None = None) -> None:
         PhaseDurations(args.load, args.wash, args.elute, args.regen),
         num_columns=args.columns,
     )
+    if schedule.num_columns < schedule.required_columns:
+        raise SystemExit(
+            f"--columns {schedule.num_columns} < 필요 컬럼 {schedule.required_columns}개: "
+            "동시 활성 사이클이 누락됩니다. --columns를 늘리거나 단계 길이를 조정하세요."
+        )
     run(schedule=schedule, titer=args.titer, dt=args.dt, save_path=args.save)
 
 
