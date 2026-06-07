@@ -11,3 +11,11 @@
 - **결정**: 실시간 창(matplotlib FuncAnimation) / 풀 레이아웃(컬럼+VI+Titer+하단 타임라인) /
   깔끔한 다이어그램 / titer는 표시 값으로만 시작(Gompertz 결합 미구현, YAGNI).
 - **다음**: 구현 계획(writing-plans) 작성.
+
+## 템플릿 셋업 정리 + 공개 리포 초기화
+
+- **무엇**: CLAUDE.md에 Project 섹션 추가 + 미사용 import(백엔드/Docker 블록, TypeScript) 제거,
+  고아 rule 파일(`rules/backend/`, `rules/languages/typescript.md`)·템플릿 메타 문서(`docs/template/`) 삭제,
+  README 플레이스홀더를 실제 프로젝트 설명으로 교체.
+- **왜**: Python 전용 matplotlib 프로젝트라 백엔드/TS 룰이 불필요하고, 공개 리포에 템플릿 잔재·플레이스홀더를
+  남기지 않기 위함 (문서화·setup-from-template 룰).
