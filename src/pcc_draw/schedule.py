@@ -32,3 +32,27 @@ class PhaseDurations:
             (Phase.ELUTE, self.elute),
             (Phase.REGEN, self.regen),
         ]
+
+
+@dataclass(frozen=True)
+class Schedule:
+    """겹치는 PCC 사이클 타임라인. 위상 간격 = load_duration."""
+
+    durations: PhaseDurations
+    num_columns: int = 4
+
+    def cycle_start(self, cycle_index: int) -> float:
+        """사이클 i의 load 시작 시각 = i * load_duration."""
+        return cycle_index * self.durations.load
+
+    def phase_at(self, cycle_index: int, t: float) -> Phase | None:
+        """사이클 i가 시각 t에 있는 단계. 반열림 [start, end). 범위 밖이면 None."""
+        offset = t - self.cycle_start(cycle_index)
+        if offset < 0:
+            return None
+        acc = 0.0
+        for phase, dur in self.durations.as_list():
+            if acc <= offset < acc + dur:
+                return phase
+            acc += dur
+        return None
