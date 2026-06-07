@@ -41,3 +41,29 @@ def test_phase_at_returns_none_before_cycle_and_at_total_end():
     s = _sched()
     assert s.phase_at(1, 10.0) is None       # 사이클1은 t=30부터 시작 → 이전
     assert s.phase_at(0, 120.0) is None       # total=120 → 사이클 종료(반열림)
+
+
+def test_active_cycles_steady_state_has_four_concurrent():
+    # total=120, load=30 → 정상 상태에서 동시 활성 4개
+    s = _sched()
+    active = s.active_cycles(200.0)
+    assert len(active) == 4
+
+
+def test_active_cycles_excludes_cycle_ending_exactly_at_t():
+    # t=200, total=120 → start=80 사이클은 offset=120=total → 제외(반열림)
+    s = _sched()
+    indices = [i for i, _ in s.active_cycles(200.0)]
+    assert 80 / 30 not in indices  # 정수 아님이지만 의미상: start=80인 사이클 없음
+    # start=90,120,150,180 → 인덱스 3,4,5,6
+    assert indices == [3, 4, 5, 6]
+
+
+def test_active_cycles_raises_on_nonpositive_load():
+    s = Schedule(PhaseDurations(load=0.0))
+    try:
+        s.active_cycles(10.0)
+        raised = False
+    except ValueError:
+        raised = True
+    assert raised

@@ -56,3 +56,18 @@ class Schedule:
                 return phase
             acc += dur
         return None
+
+    def active_cycles(self, t: float) -> list[tuple[int, Phase]]:
+        """시각 t에 활성인 (cycle_index, phase) 목록. cycle_index 오름차순."""
+        load = self.durations.load
+        if load <= 0:
+            raise ValueError(f"load duration must be positive, got {load}")
+        total = self.durations.total
+        lo = max(0, int((t - total) // load))
+        hi = int(t // load)
+        result: list[tuple[int, Phase]] = []
+        for i in range(lo, hi + 1):
+            phase = self.phase_at(i, t)
+            if phase is not None:
+                result.append((i, phase))
+        return result
