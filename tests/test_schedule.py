@@ -1,5 +1,5 @@
 """순수 스케줄 모델 단위 테스트."""
-from pcc_draw.schedule import ColumnState, Phase, PhaseDurations, Schedule
+from pcc_draw.schedule import Phase, PhaseDurations, Schedule
 
 
 def test_phase_durations_total_sums_all_phases():
