@@ -3,8 +3,8 @@ import matplotlib
 
 matplotlib.use("Agg")  # GUI 없이 렌더 (pyplot import 전 설정)
 
-from pcc_draw.draw import PHASE_COLORS, build_figure, draw_process
-from pcc_draw.schedule import ColumnState, Phase
+from pcc_draw.draw import PHASE_COLORS, build_figure, draw_gantt, draw_process
+from pcc_draw.schedule import ColumnState, Phase, PhaseDurations, Schedule
 
 
 def test_phase_colors_cover_all_phases():
@@ -29,3 +29,12 @@ def test_draw_process_adds_a_patch_per_column_plus_vi():
     draw_process(ax_process, states, titer=1.52)
     # 컬럼 4개 + VI 박스 1개 = 최소 5개 패치
     assert len(ax_process.patches) >= 5
+
+
+def test_draw_gantt_draws_now_line_and_phase_bands():
+    fig, _, ax_gantt = build_figure()
+    s = Schedule(PhaseDurations())
+    draw_gantt(ax_gantt, s, t=200.0)
+    # phase 띠 패치가 다수 + now 세로선 1개 이상
+    assert len(ax_gantt.patches) > 4
+    assert len(ax_gantt.lines) >= 1

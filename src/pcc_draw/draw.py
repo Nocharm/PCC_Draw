@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.patches import Rectangle
 
-from pcc_draw.schedule import ColumnState, Phase
+from pcc_draw.schedule import ColumnState, Phase, Schedule
 
 PHASE_COLORS: dict[Phase, str] = {
     Phase.LOAD: "#4C9F70",   # green
@@ -62,3 +62,31 @@ def draw_process(ax: plt.Axes, states: list[ColumnState], titer: float) -> None:
 
     ax.text(9.8, 3.7, f"Titer: {titer:.2f}", ha="right", va="top", fontsize=11,
             bbox=dict(boxstyle="round", fc="white", ec="gray"))
+
+
+def draw_gantt(ax: plt.Axes, schedule: Schedule, t: float,
+               window_min: float = 180.0) -> None:
+    """하단 패널: 컬럼별 단계 색 띠 + now 세로선. now는 창의 60% 지점."""
+    ax.clear()
+    t0 = t - window_min * 0.6
+    t1 = t + window_min * 0.4
+    ax.set_xlim(t0, t1)
+    ax.set_ylim(-0.5, schedule.num_columns - 0.5)
+    ax.set_yticks(range(schedule.num_columns))
+    ax.set_yticklabels(COLUMN_LABELS[:schedule.num_columns])
+    ax.set_xlabel("time (min)")
+    ax.set_title("timeline", loc="left")
+
+    load = schedule.durations.load
+    total = schedule.durations.total
+    lo = max(0, int((t0 - total) // load))
+    hi = int(t1 // load)
+    for cyc in range(lo, hi + 1):
+        row = cyc % schedule.num_columns
+        acc = schedule.cycle_start(cyc)
+        for phase, dur in schedule.durations.as_list():
+            ax.add_patch(Rectangle((acc, row - 0.3), dur, 0.6,
+                                   facecolor=PHASE_COLORS[phase], edgecolor="none"))
+            acc += dur
+
+    ax.axvline(t, color="green", lw=2)  # now 세로선
