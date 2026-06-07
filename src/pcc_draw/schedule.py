@@ -35,6 +35,15 @@ class PhaseDurations:
 
 
 @dataclass(frozen=True)
+class ColumnState:
+    """한 컬럼의 현재 점유 상태. cycle/phase가 None이면 유휴."""
+
+    column: int
+    cycle: int | None
+    phase: Phase | None
+
+
+@dataclass(frozen=True)
 class Schedule:
     """겹치는 PCC 사이클 타임라인. 위상 간격 = load_duration."""
 
@@ -71,3 +80,11 @@ class Schedule:
             if phase is not None:
                 result.append((i, phase))
         return result
+
+    def state_at(self, t: float) -> list[ColumnState]:
+        """각 컬럼의 (활성 사이클, 단계). 사이클 i → 컬럼 i % num_columns."""
+        states = [ColumnState(c, None, None) for c in range(self.num_columns)]
+        for cycle, phase in self.active_cycles(t):
+            c = cycle % self.num_columns
+            states[c] = ColumnState(c, cycle, phase)
+        return states

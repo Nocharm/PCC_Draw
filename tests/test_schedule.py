@@ -1,5 +1,5 @@
 """순수 스케줄 모델 단위 테스트."""
-from pcc_draw.schedule import Phase, PhaseDurations, Schedule
+from pcc_draw.schedule import ColumnState, Phase, PhaseDurations, Schedule
 
 
 def test_phase_durations_total_sums_all_phases():
@@ -67,3 +67,29 @@ def test_active_cycles_raises_on_nonpositive_load():
     except ValueError:
         raised = True
     assert raised
+
+
+def test_state_at_returns_one_entry_per_column():
+    s = _sched()
+    states = s.state_at(200.0)
+    assert len(states) == 4
+    assert [st.column for st in states] == [0, 1, 2, 3]
+
+
+def test_state_at_assigns_active_cycles_to_distinct_columns():
+    # 동시 활성 4개가 4개 컬럼에 1:1 (round-robin mod 4)
+    s = _sched()
+    states = s.state_at(200.0)
+    assert all(st.cycle is not None for st in states)
+    assert all(st.cycle % 4 == st.column for st in states)
+
+
+def test_eluting_columns_match_elute_phase():
+    s = _sched()
+    t = 200.0
+    states = s.state_at(t)
+    eluting = [st for st in states if st.phase is Phase.ELUTE]
+    # 직접 phase_at로 교차검증
+    expected = [st for st in states if st.cycle is not None
+                and s.phase_at(st.cycle, t) is Phase.ELUTE]
+    assert eluting == expected
