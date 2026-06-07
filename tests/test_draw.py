@@ -46,3 +46,4 @@ def test_render_populates_both_axes():
     render(fig, ax_process, ax_gantt, s, t=200.0, titer=1.52)
     assert len(ax_process.patches) >= 5   # 컬럼 + VI
     assert len(ax_gantt.lines) >= 1        # now 선
+    assert len(ax_gantt.patches) > 4    # 간트 phase 띠

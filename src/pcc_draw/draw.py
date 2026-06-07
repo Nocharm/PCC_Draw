@@ -13,8 +13,8 @@ PHASE_COLORS: dict[Phase, str] = {
     Phase.ELUTE: "#DD6E42",  # orange
     Phase.REGEN: "#5B8DEF",  # blue
 }
-IDLE_COLOR = "#E0E0E0"
-COLUMN_LABELS = ["#01", "#02", "#03", "#04"]
+IDLE_COLOR: str = "#E0E0E0"
+NOW_LINE_COLOR: str = "#2CA02C"  # now 세로선 (초록)
 
 
 def build_figure() -> tuple[Figure, plt.Axes, plt.Axes]:
@@ -26,27 +26,27 @@ def build_figure() -> tuple[Figure, plt.Axes, plt.Axes]:
 
 
 def draw_process(ax: plt.Axes, states: list[ColumnState], titer: float) -> None:
-    """상단 패널: 컬럼 박스(단계 색) + VI + Titer + elute→VI 화살표."""
+    """상단 패널: 컬럼 박스(단계 색) + VI + Titer + elute→VI 화살표. xlim은 컬럼 수에 맞춰 동적."""
     ax.clear()
-    ax.set_xlim(0, 10)
+    box_w, box_h, gap, y0 = 1.4, 2.0, 0.4, 1.0
+    n = len(states)
+    vi_x = 0.5 + n * (box_w + gap) + 0.3
+    x_right = vi_x + 1.0 + 0.7  # VI 박스 너비(1.0) + 우측 여백
+    ax.set_xlim(0, x_right)
     ax.set_ylim(0, 4)
     ax.axis("off")
     ax.set_title("PCC — Pro A columns", loc="left")
 
-    box_w, box_h, gap, y0 = 1.4, 2.0, 0.4, 1.0
     for st in states:
         x0 = 0.5 + st.column * (box_w + gap)
         color = PHASE_COLORS[st.phase] if st.phase else IDLE_COLOR
         ax.add_patch(Rectangle((x0, y0), box_w, box_h,
                                facecolor=color, edgecolor="black", lw=1.5))
-        label = (COLUMN_LABELS[st.column] if st.column < len(COLUMN_LABELS)
-                 else f"#{st.column + 1:02d}")
-        ax.text(x0 + box_w / 2, y0 + box_h - 0.3, label,
+        ax.text(x0 + box_w / 2, y0 + box_h - 0.3, f"#{st.column + 1:02d}",
                 ha="center", va="top", fontweight="bold")
         ax.text(x0 + box_w / 2, y0 + 0.3, st.phase.value if st.phase else "idle",
                 ha="center", va="bottom")
 
-    vi_x = 0.5 + len(states) * (box_w + gap) + 0.3
     eluting = [st for st in states if st.phase is Phase.ELUTE]
     vi_color = PHASE_COLORS[Phase.ELUTE] if eluting else IDLE_COLOR
     ax.add_patch(Rectangle((vi_x, y0 + 0.5), 1.0, 1.0,
@@ -60,7 +60,7 @@ def draw_process(ax: plt.Axes, states: list[ColumnState], titer: float) -> None:
                     arrowprops=dict(arrowstyle="->", lw=2,
                                     color=PHASE_COLORS[Phase.ELUTE]))
 
-    ax.text(9.8, 3.7, f"Titer: {titer:.2f}", ha="right", va="top", fontsize=11,
+    ax.text(x_right - 0.2, 3.7, f"Titer: {titer:.2f}", ha="right", va="top", fontsize=11,
             bbox=dict(boxstyle="round", fc="white", ec="gray"))
 
 
@@ -73,12 +73,13 @@ def draw_gantt(ax: plt.Axes, schedule: Schedule, t: float,
     ax.set_xlim(t0, t1)
     ax.set_ylim(-0.5, schedule.num_columns - 0.5)
     ax.set_yticks(range(schedule.num_columns))
-    ax.set_yticklabels(COLUMN_LABELS[:schedule.num_columns])
+    ax.set_yticklabels([f"#{i + 1:02d}" for i in range(schedule.num_columns)])
     ax.set_xlabel("time (min)")
     ax.set_title("timeline", loc="left")
 
     load = schedule.durations.load
     total = schedule.durations.total
+    # 후보 하한: bar 끝(start+total)이 t0 이후인 사이클만 창에 보일 수 있음
     lo = max(0, int((t0 - total) // load))
     hi = int(t1 // load)
     for cyc in range(lo, hi + 1):
@@ -89,7 +90,7 @@ def draw_gantt(ax: plt.Axes, schedule: Schedule, t: float,
                                    facecolor=PHASE_COLORS[phase], edgecolor="none"))
             acc += dur
 
-    ax.axvline(t, color="green", lw=2)  # now 세로선
+    ax.axvline(t, color=NOW_LINE_COLOR, lw=2)  # now 세로선
 
 
 def render(fig: Figure, ax_process: plt.Axes, ax_gantt: plt.Axes,
