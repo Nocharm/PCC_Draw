@@ -26,3 +26,12 @@
   schedule(모델, TDD) → draw(렌더, Agg 스모크) → animate(드라이버) → CLI → 검증/GIF/README.
 - **왜**: 승인된 설계를 바이트사이즈 태스크로 분해해 task-by-task 구현·검증하기 위함.
 - **다음**: 구현 실행 (subagent-driven 또는 inline).
+
+## PCC_Draw 애니메이션 구현 완료 (Tasks 1–12)
+
+- **무엇**: `src/pcc_draw/` 패키지 전체 구현 — `schedule.py`(순수 모델), `draw.py`(한 프레임 렌더),
+  `animate.py`(FuncAnimation 드라이버), `__main__.py`(CLI). `docs/demo.gif` 데모 생성.
+- **왜**: 설계 문서(`2026-06-08-pcc-draw-animation-design.md`)를 바탕으로 PCC 컬럼 4개의
+  계단식 순환을 실시간 창 + GIF로 시각화하기 위함.
+- **검증**: `uv run pytest -q` → 22 passed, `uv run ruff check .` → All checks passed.
+  헤드리스 렌더 확인(process patches=5, gantt patches=40, gantt lines=1). demo.gif = 1.7 MB.

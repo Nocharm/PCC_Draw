@@ -15,19 +15,30 @@ Protein A 컬럼 #01~#04가 시간에 따라 `LOAD → WASH → ELUTE → REGEN`
 
 ## 현재 상태
 
-**설계 완료, 구현 대기.** 설계 문서: [`docs/superpowers/specs/2026-06-08-pcc-draw-animation-design.md`](docs/superpowers/specs/2026-06-08-pcc-draw-animation-design.md).
+**구현 완료.** 22개 테스트 통과, ruff clean. 설계 문서: [`docs/superpowers/specs/2026-06-08-pcc-draw-animation-design.md`](docs/superpowers/specs/2026-06-08-pcc-draw-animation-design.md).
 
-## 계획된 구조
+## 실행
+
+```bash
+uv sync --extra dev
+uv run python -m pcc_draw                 # 실시간 창 (space=정지, ↑/↓=속도)
+uv run python -m pcc_draw --save demo.gif # GIF 저장
+uv run python -m pcc_draw --titer 2.0 --load 25  # 파라미터 조정
+```
+
+![demo](docs/demo.gif)
+
+## 구조
 
 ```
 src/pcc_draw/
 ├── schedule.py   # 순수 모델: Phase, 고정 길이, 사이클 타임라인, state_at(t)
 ├── draw.py       # 한 프레임 렌더: 모델 상태 → matplotlib 도형
-├── animate.py    # FuncAnimation 드라이버: 재생/일시정지/속도, --save GIF/MP4
+├── animate.py    # FuncAnimation 드라이버: 재생/일시정지/속도, --save GIF
 └── __main__.py   # python -m pcc_draw 진입점
 tests/            # schedule.py 단위 테스트
 ```
 
 ## 요구사항
 
-Python 3.11+, `matplotlib` (GIF 저장 시 `pillow`). 자세한 설치/실행은 구현 후 갱신한다.
+Python 3.11+, `matplotlib`, `pillow` (GIF 저장 시 필요).
